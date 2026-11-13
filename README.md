@@ -10,3 +10,8 @@ Sito di **prova** (contenuti finti) per validare lo stack Next.js + Supabase + V
 ## Sicurezza
 - Nel frontend solo la chiave **publishable** di Supabase. Mai la chiave `secret`/`service_role`.
 - Nessun segreto nel repository: le variabili stanno in `.env.local` (ignorato da Git) e su Vercel.
+
+## Controlli automatici su ogni PR
+Il workflow `.github/workflows/pr-checks.yml` esegue: scansione segreti (gitleaks), lint, tipi, audit delle dipendenze, build,
+controlli SEO tecnici (`scripts/seo-check.mjs`), analisi Yoast (`scripts/yoast-check.mjs`) e Lighthouse.
+Le soglie sono in `seo.config.json` (Yoast in modalità `warn`: segnala senza bloccare; passare a `enforce` per articoli veri).

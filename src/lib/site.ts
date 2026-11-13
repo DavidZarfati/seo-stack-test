@@ -19,7 +19,7 @@ export const UI = {
   en: {
     siteName: "SEO Stack Test",
     listTitle: "Articles",
-    listIntro: "Fictional articles used to test a server-rendered, SEO-first stack.",
+    listIntro: "Fictional articles used to test a server-rendered, SEO-first website stack.",
     back: "All articles",
     notFoundTitle: "Page not found",
     notFoundText: "This page does not exist.",

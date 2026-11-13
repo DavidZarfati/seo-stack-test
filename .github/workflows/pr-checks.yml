@@ -1,0 +1,87 @@
+name: Controlli PR (qualità, sicurezza, SEO)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Permessi minimi: il workflow può solo leggere il codice.
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Valori PUBBLICI (URL e chiave publishable di Supabase): non sono segreti, stanno nelle "variables" del repo.
+  NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+  # In CI il sito si costruisce "indicizzabile" per misurare come si comporterebbe in produzione reale.
+  SITE_INDEXABLE: "true"
+  NEXT_PUBLIC_SITE_URL: http://localhost:3111
+  # Valore finto: in CI non serve il segreto vero.
+  REVALIDATE_SECRET: ci-dummy-not-a-secret
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Scansione segreti (gitleaks)
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Controllo tipi
+        run: npm run typecheck
+
+      - name: Vulnerabilità delle dipendenze di produzione
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build
+        run: npm run build
+
+      - name: Avvio del sito
+        run: |
+          npx next start -p 3111 > server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fs http://localhost:3111/en > /dev/null && exit 0
+            sleep 1
+          done
+          echo "Il sito non è partito"; cat server.log; exit 1
+
+      - name: Controlli SEO tecnici
+        run: BASE_URL=http://localhost:3111 EXPECT_INDEXABLE=true npm run seo:check
+
+      - name: Analisi Yoast
+        run: node scripts/yoast-check.mjs
+
+      - name: Lighthouse (velocità, SEO, accessibilità)
+        run: npx --yes @lhci/cli@0.16.1 autorun
+
+      - name: Punteggi Lighthouse nel riepilogo
+        if: always()
+        run: node scripts/lighthouse-summary.mjs lighthouse-results
+
+      - name: Salva i report Lighthouse
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lighthouse-report
+          path: lighthouse-results
+          if-no-files-found: warn
