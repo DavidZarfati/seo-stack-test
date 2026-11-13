@@ -74,10 +74,14 @@ jobs:
       - name: Lighthouse (velocità, SEO, accessibilità)
         run: npx --yes @lhci/cli@0.16.1 autorun
 
+      - name: Punteggi Lighthouse nel riepilogo
+        if: always()
+        run: node scripts/lighthouse-summary.mjs lighthouse-results
+
       - name: Salva i report Lighthouse
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report
-          path: .lighthouseci
-          if-no-files-found: ignore
+          path: lighthouse-results
+          if-no-files-found: warn
