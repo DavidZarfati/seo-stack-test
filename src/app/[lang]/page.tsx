@@ -10,7 +10,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return {};
   return {
-    title: UI[lang].listTitle,
+    // Il template del layout non si applica alla pagina dello stesso livello: il nome del sito va aggiunto qui.
+    title: `${UI[lang].listTitle} | ${UI[lang].siteName}`,
     description: UI[lang].listIntro,
     alternates: {
       canonical: `/${lang}`,

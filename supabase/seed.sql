@@ -25,3 +25,9 @@ insert into public.articles (lang, slug, title, meta_description, body_md, statu
  'This draft exists only to prove that unpublished articles are not exposed to visitors.',
  'If you can read this on the public site, the security rules are broken.',
  'draft', null);
+
+-- Parole chiave principali (analisi Yoast)
+update public.articles set focus_keyphrase='content pipeline' where lang='en' and slug='how-a-test-pipeline-works';
+update public.articles set focus_keyphrase='server rendering' where lang='en' and slug='why-server-rendering-helps-seo';
+update public.articles set focus_keyphrase='pipeline di prova' where lang='it' and slug='come-funziona-una-pipeline-di-prova';
+update public.articles set focus_keyphrase='rendering lato server' where lang='it' and slug='perche-il-rendering-lato-server-aiuta-la-seo';

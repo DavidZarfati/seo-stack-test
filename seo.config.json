@@ -1,0 +1,16 @@
+{
+  "_nota": "Soglie dei controlli SEO. 'mode': 'warn' segnala senza bloccare; 'enforce' blocca la PR se sotto soglia.",
+  "yoast": {
+    "mode": "warn",
+    "seoMin": 60,
+    "readabilityMin": 70,
+    "minWordsForEnforce": 300
+  },
+  "technical": {
+    "titleMin": 10,
+    "titleMax": 70,
+    "titleWarnAbove": 60,
+    "descriptionMin": 70,
+    "descriptionMax": 165
+  }
+}
