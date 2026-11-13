@@ -12,7 +12,7 @@ const pct = (c) => Math.round(c.score * 100);
 const icon = (n, ok) => (n >= ok ? "🟢" : n >= ok - 15 ? "🟠" : "🔴");
 
 const lines = ["## Lighthouse (mobile)", "", "| Pagina | Prestazioni | Accessibilità | Best practice | SEO | LCP | CLS | TBT |", "|---|---:|---:|---:|---:|---:|---:|---:|"];
-for (const f of readdirSync(dir).filter((f) => /^lhr-.*\.json$/.test(f))) {
+for (const f of readdirSync(dir).filter((f) => /\.report\.json$/.test(f))) {
   const j = JSON.parse(readFileSync(join(dir, f), "utf8"));
   const c = j.categories;
   const a = j.audits;
